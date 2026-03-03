@@ -110,27 +110,19 @@ public class AStar<A,S,C extends Comparable<C>,N extends HeuristicNode<A,S,C,N>>
             open.remove(currentState);
 
             // Analyze the cost of each movement from the current node
+   /* ARREGLO TERCERA ISSUE*/         
             for(N successorNode : expander.expand(current)){
                 N successorOpen = open.get(successorNode.state());
-                if (successorOpen != null) {
-                    if (successorOpen.getScore().compareTo(successorNode.getScore()) <= 0) {
-                        // Keep analyzing the other movements, discard this movement
-                        continue;
-                    }
-                }
-
                 N successorClose = closed.get(successorNode.state());
-                if (successorClose != null) {
-                    // Check if this path improves the cost of a closed neighbor.
-                    if (successorClose.getScore().compareTo(successorNode.getScore()) <= 0) {
-                        continue;
-                    }
+                if ((successorOpen != null && successorOpen.getScore().compareTo(successorNode.getScore()) <= 0) ||
+                (successorClose != null && successorClose.getScore().compareTo(successorNode.getScore()) <= 0)) {
+                // Keep analyzing the other movements, discard this movement
+                continue;
                 }
-
-                // In any other case, add the new successor to the open list to explore later
                 open.put(successorNode.state(), successorNode);
                 queue.add(successorNode);
             }
+    /* FINAL ARREGLO TERCERA ISSUE*/
             // Once analyzed, the current node moves to the closed list
             closed.put(currentState, current);
             return current;
