@@ -125,5 +125,17 @@ public class MultiobjectiveShortestPathTest {
         System.out.println(Hipster.createMultiobjectiveLS(GraphSearchProblem.startingFrom("v1").in(graph).useGenericCosts(bf).build()).search("v6"));
 
         // TODO; Add solution verification
+        var result = Hipster.createMultiobjectiveLS(GraphSearchProblem.startingFrom("v1")
+            .in(graph).useGenericCosts(bf).build()).search("v6");
+        
+        // Add assertions to validate the result
+        
+        // Ensure the result is not null
+        assertNotNull("The result of the search should not be null", result);
+        
+        // Assuming the result is a list or path, you can check if it contains the expected nodes.
+        // Example: validate the path from "v1" to "v6"
+        assertEquals("The path should start with v1", "v1", result.get(0));
+        assertEquals("The path should end with v6", "v6", result.get(result.size() - 1));
     }
 }
