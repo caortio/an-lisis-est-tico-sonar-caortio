@@ -220,56 +220,80 @@ public class ADStarForward<A,S,C extends Comparable<C>, N extends es.usc.citius.
             N current = takePromising();
             S state = current.state();
             N minGoal = Collections.min(goalNodes);
-            if (minGoal.compareTo(current) >= 0 || minGoal.getV().compareTo(minGoal.getG()) < 0) {
-                //s removed from OPEN
-                open.remove(state);
-                //this.queue.remove(current);
-                //if v(s) > g(s)
-                boolean consistent = current.isConsistent();
-                if (consistent) {
-                    //v(s) = g(s)
-                    current.setV(current.getG());
-                    //closed = closed U current
-                    closed.put(state, current);
-                } else {
-                    //v(s) = Infinity
-                    expander.setMaxV(current);
-                    updateQueues(current);
-                }
-                expander.setNodeConsistent(consistent);
-                //expand successors
-                for (N successorNode : expander.expand(current)) {
-                    if(successorNode.isDoUpdate()){
-                        updateQueues(successorNode);
-                    }
-                }
+            
+/** Código modificado para solucionar la segunda issue*/
+            if (isGoalNode(minGoal, current)) {
+                processGoalNode(current, state);
             } else {
-                this.replan = false;
-                // for all directed edges (u, v) with changed edge costs
-                for(N nodeTransitionsChanged : expander.expandTransitionsChanged(beginNode, transitionsChanged)){
-                    updateQueues(nodeTransitionsChanged);
-                }
-                //empty the list of transitions
-                transitionsChanged.clear();
-                //move states from INCONS to OPEN
-                open.putAll(incons);
-                //empty INCONS queue
-                incons.clear();
-                //updateQueues the priorities for all s in OPEN according to key(s)
-                queue.clear();
-                for(N node : open.values()){
-                    //key is recalculated according to the new value of Epsilon
-                    expander.updateKey(node);
-                    //insert into the priority queue
-                    queue.offer(node);
-                }
-                //closed = empty
-                closed.clear();
-                current = takePromising();
+                replan();
             }
             return current;
         }
 
+        private boolean isGoalNode(N minGoal, N current) {
+            return minGoal.compareTo(current) >= 0 || minGoal.getV().compareTo(minGoal.getG()) < 0;
+        }
+
+        private void processGoalNode(N current, S state) {
+            open.remove(state);
+            boolean consistent = current.isConsistent();
+        
+            if (consistent) {
+                handleConsistentNode(current, state);
+            } else {
+                handleInconsistentNode(current);
+            }
+        
+            expander.setNodeConsistent(consistent);
+            expandSuccessors(current);
+        }
+
+        private void handleConsistentNode(N current, S state) {
+            current.setV(current.getG());
+            closed.put(state, current);
+        }
+
+        private void handleInconsistentNode(N current) {
+            expander.setMaxV(current);
+            updateQueues(current);
+        }
+
+        private void expandSuccessors(N current) {
+            for (N successorNode : expander.expand(current)) {
+                if (successorNode.isDoUpdate()) {
+                    updateQueues(successorNode);
+                }
+            }
+        }
+
+        private void replan() {
+            this.replan = false;
+            processChangedEdgeCosts();
+            moveStatesToOpen();
+            updateOpenQueue();
+        }
+
+        private void processChangedEdgeCosts() {
+            for (N nodeTransitionsChanged : expander.expandTransitionsChanged(beginNode, transitionsChanged)) {
+                updateQueues(nodeTransitionsChanged);
+            }
+            transitionsChanged.clear();
+        }
+        
+        private void moveStatesToOpen() {
+            open.putAll(incons);
+            incons.clear();
+        }
+        
+        private void updateOpenQueue() {
+            queue.clear();
+            for (N node : open.values()) {
+                expander.updateKey(node);
+                queue.offer(node);
+            }
+        }
+
+/**FIN código modificado para resolver segunda issue*/
         /**
          * AD* uses the OPEN queue to order the most promising nodes to be expanded by the
          * algorithm. This method retrieves the original map (not a copy) that contains
