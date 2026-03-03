@@ -3,7 +3,7 @@
 ![CI](https://github.com/citiususc/hipster/actions/workflows/maven.yml/badge.svg)
 [![](https://jitpack.io/v/citiususc/hipster.svg)](https://jitpack.io/#citiususc/hipster)
 
-A powerful and friendly heuristic search library implemented in Java.
+A powerful and friendly heuristic search library implemented in Java.  
 
 ## What's Hipster4j?
 
