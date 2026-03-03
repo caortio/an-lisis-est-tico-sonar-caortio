@@ -55,8 +55,8 @@ public class DepthFirstSearch<A,S,N extends Node<A,S,N>> extends Algorithm<A,S,N
         boolean visited = false;
         // Boolean to indicate that this node is fully processed
         boolean processed = false;
-
-        StackFrameNode(java.util.Iterator successors, N node) {
+        //Arreglo de la quinta issue (añadir tipo al genérico)
+        StackFrameNode(java.util.Iterator<N> successors, N node) {
             this.successors = successors;
             this.node = node;
         }
